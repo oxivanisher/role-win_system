@@ -1,0 +1,84 @@
+---
+# tasks file for win_system
+
+- name: Ensure automatic install of suggested apps disabled for win_system_users
+  ansible.windows.win_regedit:
+    hive: "C:\\Users\\{{ item }}\\NTUSER.dat"
+    path: HKLM:\ANSIBLE\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SilentInstalledAppsEnabled
+    data: 0
+    type: dword
+  loop: "{{ win_system_users }}"
+
+- name: Ensure automatic install of suggested apps disabled for ansible_user
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: SilentInstalledAppsEnabled
+    data: 0
+    type: dword
+  when: win_system_also_for_ansible_user | bool
+
+
+- name: Disable upload of activity history for win_system_users
+  ansible.windows.win_regedit:
+    hive: "C:\\Users\\{{ item }}\\NTUSER.dat"
+    path: HKLM:\ANSIBLE\Software\Policies\Microsoft\Windows\System
+    name: PublishUserActivities
+    data: 0
+    type: dword
+  loop: "{{ win_system_users }}"
+
+- name: Disable upload of activity history for ansible_user
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Policies\Microsoft\Windows\System
+    name: PublishUserActivities
+    data: 0
+    type: dword
+  when: win_system_also_for_ansible_user | bool
+
+
+- name: Ensure "Suggest ways to get the most out of Windows and finish setting up this device" is disabled for win_system_users
+  ansible.windows.win_regedit:
+    hive: "C:\\Users\\{{ item }}\\NTUSER.dat"
+    path: HKLM:\ANSIBLE\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement
+    name: ScoobeSystemSettingEnabled
+    data: 0
+    type: dword
+  loop: "{{ win_system_users }}"
+
+- name: Ensure "Suggest ways to get the most out of Windows and finish setting up this device" is disabled for ansible_user
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement
+    name: ScoobeSystemSettingEnabled
+    data: 0
+    type: dword
+  when: win_system_also_for_ansible_user | bool
+
+
+- name: Ensure 'Windows Welcome Experience' per user are disabled for win_system_users
+  ansible.builtin.include_tasks: nested_welcome_exp_tasks.yml
+  loop: "{{ win_system_users }}"
+  loop_control:
+    loop_var: loop_user
+
+- name: Ensure 'Windows Welcome Experience' items are disabled for ansible_user
+  ansible.windows.win_regedit:
+    path: HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager
+    name: "{{ loop_item }}"
+    data: 0
+    type: dword
+  loop:
+    - SubscribedContent-310093Enabled
+    - SubscribedContent-338388Enabled
+    - SubscribedContent-338389Enabled
+    - SubscribedContent-88000326Enabled
+    - RotatingLockScreenOverlayEnabled
+    - RotatingLockScreenEnabled
+    - SubscribedContent-338387Enabled
+    - SubscribedContent-353696Enabled
+    - PreInstalledAppsEnabled
+    - OemPreInstalledAppsEnabled
+    - SilentInstalledAppsEnabled
+  loop_control:
+    loop_var: loop_item
+  when: win_system_also_for_ansible_user | bool
