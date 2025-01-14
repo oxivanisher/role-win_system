@@ -1,2 +1,5 @@
 ---
 # defaults file for win_system
+win_system_users:
+  - Default
+win_system_also_for_ansible_user: true
