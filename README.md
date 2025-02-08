@@ -1,5 +1,6 @@
 win_system
 ==========
+[![Ansible Lint](https://github.com/oxivanisher/role-win_system/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/oxivanisher/role-win_system/actions/workflows/ansible-lint.yml)
 
 Configure Windows system things, mostly concerning privacy and telemetry:
 * Disable automatic install of suggested apps
